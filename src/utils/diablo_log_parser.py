@@ -28,7 +28,6 @@ for line in log_lines:
     #some temp values for looping
     simple_item_counter = 0
     prefix_counter = 0
-    complex_item_counter = 0
     #check simple strings
     for string in simple_string: 
         if string in line:
@@ -37,8 +36,9 @@ for line in log_lines:
         simple_item_counter += 1
     #check concat strings
     for prefix in prefix_string:
+        complex_item_counter = 0
         for string in complex_string:
-            if ((prefix + "\: " + string) in line):
+            if ((prefix + ": " + string) in line):
                 complex_counter [prefix_counter][complex_item_counter] += 1
                 break
             complex_item_counter += 1
@@ -57,24 +57,24 @@ prefix_counter = 0
 table1 = BeautifulTable ()
 #append simple strings
 for string in simple_string:
-    table1.rows.append ([string, simple_counter [simple_item_counter]])
+    table1.rows.append ([string, simple_counter [simple_item_counter], f"{simple_counter [simple_item_counter] / simple_counter [0]:.2%}"])
     simple_item_counter += 1
 
-table2 = BeautifulTable ()
-for prefix in prefix_string:
-    complex_item_counter = 0
-    for string in complex_string:
-        table2.rows.append ([prefix + ": " + string, complex_counter [prefix_counter, complex_item_counter]])
-        complex_item_counter += 1
-    prefix_counter += 1
-table2.columns.header = ['String', 'amount']
-
-
 result_file = open (wkdir + "/cs_result.txt", 'w')
-
 result_file.write (str(table1))
 result_file.write ("\n")
-result_file.write (str(table2))
+
+for prefix in prefix_string:
+    table2 = BeautifulTable ()
+    complex_item_counter = 0
+    for string in complex_string:
+        table2.rows.append ([prefix + ": " + string, complex_counter [prefix_counter, complex_item_counter], f"{complex_counter [prefix_counter, complex_item_counter]/complex_counter [prefix_counter, 0]:.2%}"])
+        complex_item_counter += 1
+    prefix_counter += 1
+    table2.columns.header = ['String', 'amount', 'percentage']
+    result_file.write (str(table2))
+    result_file.write ("\n")
+
 
 error_counter = 0
 for error in error_array:
