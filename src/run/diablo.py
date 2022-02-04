@@ -12,6 +12,8 @@ from ui import UiManager
 from utils.misc import wait
 from utils.custom_mouse import mouse
 from screen import Screen
+import read_mem
+import math
 
 
 class Diablo:
@@ -349,11 +351,52 @@ class Diablo:
     def battle(self, do_pre_buff: bool) -> Union[bool, tuple[Location, bool]]:
         self._picked_up_items = False
         self.used_tps = 0
+        #get new starting offsets
+        d2 = read_mem.d2r_proc()
+        #find our player
+        try:
+            d2.get_player_offset(128)
+        except:
+            log = ("!! Unable to find player, are you at the title screen?")
+            print(colored(log, 'red'))
+            exit()
+        #d2.find_objects()
         if do_pre_buff: self._char.pre_buff()
         if not self._river_of_flames(): return False
         if self._config.char["kill_cs_trash"]: Logger.info("Clearing CS trash is not yet implemented, AZMR is working on it ... continue without trash")
+        
+        
+        d2.find_info()
+        
+        #d2.get_map_json(str(d2.map_seed))
+        #d2.get_map_d2api(d2.map_seed)
+        d2.get_map_json(d2.map_seed)
+        target_x = d2.seals[0][0]['x']
+        target_y = d2.seals[0][0]['y']
+        print (f"target pos {str (target_x)} , {str (target_y)}")
+        d2.get_ppos()
+        odist = math.dist([target_x,target_y],[d2.x_pos,d2.y_pos])
+        moves=0
+        while odist > 16:
+            print('odist + '+ str(odist))
+            d2.get_ppos()    
+            grid_x = (target_x-d2.x_pos)-(target_y-d2.y_pos)
+            grid_y = (target_x-d2.x_pos)+(target_y-d2.y_pos)
+            o_pos_x = (grid_x)*20
+            o_pos_y = (grid_y)*10
+            if odist < 100:
+                o_pos_x = (grid_x)*(odist/5)
+                o_pos_y = (grid_y)*(odist/5)
+            pos_m = self._pather._adjust_abs_range_to_screen([o_pos_x,o_pos_y-10])
+            zero = self._screen.convert_abs_to_monitor(pos_m)
+            self._char.pre_move()
+            self._char.move(zero)
+            odist = math.dist([target_x,target_y],[d2.x_pos,d2.y_pos])
+            moves+=1
+            if moves>120:
+                break
+    
         if not self._cs_pentagram(): return False
-
         # Seal A: Vizier (to the left)
         if self._config.char["kill_cs_trash"] and do_pre_buff: self._char.pre_buff()
         #self._char.kill_cs_trash() # not needed if seals exectued in order A-B-C
@@ -470,6 +513,7 @@ if __name__ == "__main__":
     screen = Screen()
     game_stats = GameStats()
     bot = Bot(screen, game_stats, False)
+    
 
 ### ISSUE LOG ###
 
