@@ -94,7 +94,7 @@ class d2r_proc:
 		self.map_ox = map_offset_x
 		self.map_oy = map_offset_y
 
-		return True
+		return self.responseList
 
 
 	def get_map_json_old(self,seed):

@@ -20,7 +20,7 @@ from item import ItemFinder
 from item.pickit import PickIt
 from ui import UiManager
 from ui import BeltManager
-from pather import Pather, Location
+from pather import Pather, Location, Pather_mem
 from npc_manager import NpcManager
 from health_manager import HealthManager
 from death_manager import DeathManager
@@ -39,6 +39,8 @@ from town import TownManager, A1, A2, A3, A4, A5
 from messages import Messenger
 from utils.dclone_ip import get_d2r_game_ip
 
+import read_mem
+
 class Bot:
     def __init__(self, screen: Screen, game_stats: GameStats, template_finder: TemplateFinder, pick_corpse: bool = False):
         self._screen = screen
@@ -51,6 +53,8 @@ class Bot:
         self._belt_manager = BeltManager(self._screen, self._template_finder)
         self._pather = Pather(self._screen, self._template_finder)
         self._pickit = PickIt(self._screen, self._item_finder, self._ui_manager, self._belt_manager)
+
+        
 
         # Create Character
         if self._config.char["type"] in ["sorceress", "light_sorc"]:
@@ -75,6 +79,10 @@ class Bot:
             Logger.error(f'{self._config.char["type"]} is not supported! Closing down bot.')
             os._exit(1)
 
+        #memreading part
+        self._d2 = read_mem.d2r_proc()
+        self._pather_mem =  Pather_mem(self._d2, self._pather, self._screen, self._char)
+        
         # Create Town Manager
         npc_manager = NpcManager(screen, self._template_finder)
         a5 = A5(self._screen, self._template_finder, self._pather, self._char, npc_manager)
@@ -109,7 +117,7 @@ class Bot:
         self._trav = Trav(self._template_finder, self._pather, self._town_manager, self._ui_manager, self._char, self._pickit)
         self._nihlathak = Nihlathak(self._screen, self._template_finder, self._pather, self._town_manager, self._ui_manager, self._char, self._pickit)
         self._arcane = Arcane(self._screen, self._template_finder, self._pather, self._town_manager, self._ui_manager, self._char, self._pickit)
-        self._diablo = Diablo(self._screen, self._template_finder, self._pather, self._town_manager, self._ui_manager, self._char, self._pickit)
+        self._diablo = Diablo(self._screen, self._template_finder, self._pather, self._town_manager, self._ui_manager, self._char, self._pickit, self._d2, self._pather_mem)
 
         # Create member variables
         self._pick_corpse = pick_corpse
@@ -120,7 +128,7 @@ class Bot:
         self._stopping = False
         self._pausing = False
         self._current_threads = []
-        self._no_stash_counter = 0
+        self._no_stash_counter = 5
         self._ran_no_pickup = False
 
         # Create State Machine

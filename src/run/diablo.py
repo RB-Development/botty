@@ -3,7 +3,7 @@ import time
 from char.i_char import IChar
 from config import Config
 from logger import Logger
-from pather import Location, Pather
+from pather import Location, Pather, Pather_mem
 from typing import Union
 from item.pickit import PickIt
 from template_finder import TemplateFinder
@@ -25,7 +25,9 @@ class Diablo:
         town_manager: TownManager,
         ui_manager: UiManager,
         char: IChar,
-        pickit: PickIt
+        pickit: PickIt,
+        d2,
+        pather_mem 
     ):
         self._config = Config()
         self._screen = screen
@@ -37,6 +39,8 @@ class Diablo:
         self._pickit = pickit
         self._picked_up_items = False
         self.used_tps = 0
+        self._d2 = d2
+        self._Pather_mem = pather_mem
 
     def approach(self, start_loc: Location) -> Union[bool, Location, bool]:
         Logger.info("Run Diablo /!\ BETA Version /!\ please do not run without supervision.")
@@ -352,55 +356,43 @@ class Diablo:
         self._picked_up_items = False
         self.used_tps = 0
         #get new starting offsets
-        d2 = read_mem.d2r_proc()
+        #d2 = read_mem.d2r_proc()
         #find our player
         try:
-            d2.get_player_offset(128)
+            self._d2.get_player_offset(128)
         except:
             log = ("!! Unable to find player, are you at the title screen?")
             print(colored(log, 'red'))
             exit()
         #d2.find_objects()
         if do_pre_buff: self._char.pre_buff()
-        d2.find_info ()
-        time.sleep (5)
-        d2.get_ppos ()
-        d2.get_map_json (d2.map_seed, 107, )
+        self._d2.find_info ()
+        self._d2.get_ppos ()
+        #7803, 5918
+        self._d2.get_ppos ()
+        #7799, 5887
+        #self._d2.get_map_json (self._d2.map_seed, 107)
         #7797, 5599
-
+        Pather_mem.calc_path_to_target (self, self._d2.x_pos, self._d2.y_pos, 7797, 5590)
+        #self._d2 = read_mem.d2r_proc()
+        #self._d2.get_player_offset(128)
+        #self._d2.find_info ()
         #if not self._river_of_flames(): return False
-        if self._config.char["kill_cs_trash"]: Logger.info("Clearing CS trash is not yet implemented, AZMR is working on it ... continue without trash")
+        #if self._config.char["kill_cs_trash"]: Logger.info("Clearing CS trash is not yet implemented, AZMR is working on it ... continue without trash")
+        result = self._d2.get_map_json (self._d2.map_seed, 108, ["255", "392", "393", "255","394","255", "395", "396", "255"])
         
-        
-        d2.find_info()
+        for res in result:
+            Pather_mem.calc_path_to_target (self, self._d2.x_pos, self._d2.y_pos, res[0]["x"], res [0]["y"])    
+        #self._d2.find_info()
         
         #d2.get_map_json(str(d2.map_seed))
         #d2.get_map_d2api(d2.map_seed)
-        d2.get_map_json(d2.map_seed)
-        target_x = d2.seals[0][0]['x']
-        target_y = d2.seals[0][0]['y']
+        #self._d2.get_map_json(d2.map_seed)
+        #target_x = d2.seals[0][0]['x']
+        #target_y = d2.seals[0][0]['y']
         print (f"target pos {str (target_x)} , {str (target_y)}")
-        d2.get_ppos()
-        odist = math.dist([target_x,target_y],[d2.x_pos,d2.y_pos])
-        moves=0
-        while odist > 16:
-            print('odist + '+ str(odist))
-            d2.get_ppos()    
-            grid_x = (target_x-d2.x_pos)-(target_y-d2.y_pos)
-            grid_y = (target_x-d2.x_pos)+(target_y-d2.y_pos)
-            o_pos_x = (grid_x)*20
-            o_pos_y = (grid_y)*10
-            if odist < 100:
-                o_pos_x = (grid_x)*(odist/5)
-                o_pos_y = (grid_y)*(odist/5)
-            pos_m = self._pather._adjust_abs_range_to_screen([o_pos_x,o_pos_y-10])
-            zero = self._screen.convert_abs_to_monitor(pos_m)
-            self._char.pre_move()
-            self._char.move(zero)
-            odist = math.dist([target_x,target_y],[d2.x_pos,d2.y_pos])
-            moves+=1
-            if moves>120:
-                break
+        #d2.get_ppos()
+        
     
         if not self._cs_pentagram(): return False
         # Seal A: Vizier (to the left)

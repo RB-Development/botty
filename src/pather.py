@@ -614,6 +614,39 @@ class Pather:
 
         return True
 
+class Pather_mem:
+    def __init__ (self, d2, pather, screen, char):
+        self._d2 = d2
+        self._pather = pather
+        self._screen = screen
+        self._char = char
+    def calc_path_to_target (self, x_pos, y_pos, target_x, target_y, obsticles:List=None):
+        self._d2.find_info ()
+        self._d2.get_ppos ()
+        #expect max. cast teleport 30
+        odist = math.dist([target_x,target_y],[x_pos,y_pos])
+        moves=0
+        while odist > 16:
+            print('odist + '+ str(odist))
+            self._d2.get_ppos()
+            x_pos = self._d2.x_pos
+            y_pos = self._d2.y_pos   
+            grid_x = (target_x-x_pos)-(target_y-y_pos)
+            grid_y = (target_x-x_pos)+(target_y-y_pos)
+            o_pos_x = (grid_x)*20
+            o_pos_y = (grid_y)*10
+            if odist < 100:
+                o_pos_x = (grid_x)*(odist/5)
+                o_pos_y = (grid_y)*(odist/5)
+            pos_m = self._pather._adjust_abs_range_to_screen([o_pos_x,o_pos_y-10])
+            zero = self._screen.convert_abs_to_monitor(pos_m)
+            self._char.pre_move()
+            self._char.move(zero)
+            odist = math.dist([target_x,target_y],[x_pos,y_pos])
+            moves+=1
+            if moves>120:
+                break
+
 
 # Testing: Move char to whatever Location to start and run
 if __name__ == "__main__":
