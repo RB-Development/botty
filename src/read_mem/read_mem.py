@@ -37,8 +37,7 @@ class d2r_proc:
 		self.game_info_offset = self.get_game_info_offset()
 		self.ui_settings_offset = self.get_ui_settings_offset()
 		self.menu_vis_offset = self.get_menu_vis_offset()
-		self.chests=[]
-		self.seals=[]
+		self.responseList = []
 		self.map_ox=0
 		self.map_oy=0
 		print(colored(":: Base address            -> {}".format(hex(self.base)), 'cyan'))
@@ -74,26 +73,20 @@ class d2r_proc:
 		self.map_oy = map_offset_y
 
 
-	def get_map_json(self,seed):
+	def get_map_json(self,seed, mapid:int, objectIDs:list=None):
 		#map hosting
 		base_url='http://34.69.54.92:8000'
 		#gets a hell lower kurast json file
 		#http://map.d2r-mapview.xyz:8080/v1/map/123456/2/79/
-		url=base_url+'/'+str(seed)+'/2/108/1'
+		url=base_url+'/'+str(seed)+f'/2/{str(mapid)}/1'
 		print(url)
 		resp = requests.get(url=url)
 		j = resp.json()
 		#data = json.loads(data,strict=False)	
 
 		obj = j['objects']
-		#get chests....
-		#chests = obj['580']
-		#add seals for Dia
-		self.seals.append (obj['392'])
-		self.seals.append (obj['393'])
-		self.seals.append (obj['394'])
-		self.seals.append (obj['395'])
-		self.seals.append (obj['396'])
+		for objectID in objectIDs:
+			self.responseList.append (obj[objectID])
 		#print(sd)
 		map_offset_x = j['offset']['x']
 		map_offset_y = j['offset']['y']

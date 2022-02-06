@@ -362,7 +362,13 @@ class Diablo:
             exit()
         #d2.find_objects()
         if do_pre_buff: self._char.pre_buff()
-        if not self._river_of_flames(): return False
+        d2.find_info ()
+        time.sleep (5)
+        d2.get_ppos ()
+        d2.get_map_json (d2.map_seed, 107, )
+        #7797, 5599
+
+        #if not self._river_of_flames(): return False
         if self._config.char["kill_cs_trash"]: Logger.info("Clearing CS trash is not yet implemented, AZMR is working on it ... continue without trash")
         
         
