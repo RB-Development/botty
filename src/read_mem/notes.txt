@@ -1,0 +1,11 @@
+GetUnitHashtableOffset --> self.starting_offset + offset als pointer
+offset: 128 * 8 * int (UnitType) --> monster == 1
+#monster
+monster = GetUnits UnitMonster (unitType.Monster)
+
+getUnits:
+HashTable 
+
+
+object_offset = self.starting_offset + offset
+go bytewise

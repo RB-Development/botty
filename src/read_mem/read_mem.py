@@ -6,6 +6,7 @@ txt_obj_name = ["Casket","Shrine","Casket","LargeUrn","LargeChestRight","LargeCh
 #expansion offset: 0x21F89BD
 #data offset: 0x295DAA0
 #menu offset: 0x2149E38
+from tkinter import X
 import requests
 import math
 import pymem
@@ -394,13 +395,32 @@ class d2r_proc:
                 object_unit = self.process.read_longlong(object_unit + 0x150)
 
     def get_monsters_around (self):
-        addr_mon_Stats = self.starting_offset
-        addr_shrine_type = self.starting_offset + 0x8
-        addr_monster_type = self.starting_offset + 0x1A
-        addr_boss_lineID = self.starting_offset + 0x2A
-        print (self.process.read_ushort (addr_mon_Stats))
-        print ("test")
+        #addr_mon_Stats = self.starting_offset + self.base +0x10
+        offset = 128*8*1
+        pMonster = self.starting_offset + offset 
+        mon_addr = self.base + pMonster
+        
+        for i in range(256):
+            mond_addr = mon_addr + (i-1) * 8 + 0x1A
+            mon_unit = self.process.read_bytes(mon_addr, 1)
+            print ("test")
+        
         """
+        startingAddress = self.base + self.player_unit
+        playerUnit = self.process.read_ulonglong(startingAddress)
+        pUnitData = playerUnit + 0x10 
+        playerNameAddress = self.process.read_ulonglong(pUnitData)
+        playerName = self.process.read_string(playerNameAddress)
+        startingAddress = self.base + self.player_unit
+        playerUnit = self.process.read_ulonglong(startingAddress)
+
+        pUnitData = playerUnit + 0x10
+        playerNameAddress = self.process.read_ulonglong(pUnitData)
+        playerName = self.process.read_string(playerNameAddress)
+        
+        pStatsListEx = self.process.read_ulonglong(playerUnit+0x88)
+        statPtr = self.process.read_ulonglong(pStatsListEx+0x30)
+        statCount = self.process.read_ulonglong(pStatsListEx+0x38)
         [FieldOffset(0x0)] public IntPtr pMonStats;
         [FieldOffset(0x8)] public ulong ShrineType;
         [FieldOffset(0x1A)] public MonsterTypeFlags MonsterType;
