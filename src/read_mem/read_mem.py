@@ -39,6 +39,7 @@ class d2r_proc:
         self.ui_settings_offset = self.get_ui_settings_offset()
         self.menu_vis_offset = self.get_menu_vis_offset()
         self.responseList = []
+        self.monsters = []
         self.map_ox=0
         self.map_oy=0
         print(colored(":: Base address            -> {}".format(hex(self.base)), 'cyan'))
@@ -196,6 +197,7 @@ class d2r_proc:
                 #player_check = ("!! checking player unit    -> "+str(hex(new_offset)))
                 #print(colored(player_check, 'red'))
             player_unit = self.process.read_longlong(start_addr)
+            print (player_unit)
             while player_unit>0:
                 p_inventory = player_unit+0x90
                 inventory = self.process.read_longlong(p_inventory)
@@ -221,8 +223,9 @@ class d2r_proc:
                     path_addr = self.process.read_longlong(p_path)
 
                     x_pos = self.process.read_ushort(path_addr+0x02)
+                    print (x_pos)
                     y_pos = self.process.read_ushort(path_addr+0x06)
-
+                    print (y_pos)
                     p_unit_data = player_unit +0x10
                     try:
                         player_name_addr = self.process.read_longlong(p_unit_data)
@@ -394,18 +397,58 @@ class d2r_proc:
 
                 object_unit = self.process.read_longlong(object_unit + 0x150)
 
-    def get_monsters_around (self):
+    def get_monsters_around(self):
+        self.monsters =[]
+        object_offset = self.starting_offset + (1 * 1024)
+        attempts=0
+
+
+        for i in range(256):
+            attempts=i+0
+            new_offset = object_offset + (8 * (i-1))
+            mon_addr = self.base + new_offset
+            mon_unit = self.process.read_longlong(mon_addr)
+
+            #print(i)
+            while (mon_unit>0):
+                mon_type = self.process.read_int(mon_unit+0x00)
+                if(mon_type==1):
+                    file_no = self.process.read_int(mon_unit+0x04)
+                    p_unit_data = self.process.read_ulonglong(mon_unit + 0x10)
+                    #pObjectTxt = self.process.read_ulonglong(p_unit_data)
+                    #print(str(pObjectTxt))
+                    #sObjectTxt = self.process.read_string(p_unit_data, 16)
+                    #interactType = self.process.read_ushort(p_unit_data + 0x08)
+                    #shrineFlag = self.process.read_ushort(p_unit_data + 0x09)
+                    #shrineTxt = self.process.read_string(p_unit_data + 0x0c, 16)
+                    
+                    pPath = self.process.read_ulonglong(mon_unit + 0x38)  
+                    objectx = self.process.read_ushort(pPath + 0x02)
+                    objecty = self.process.read_ushort(pPath + 0x06)
+                    self.x_pos = self.process.read_ushort(self.path_addr+0x02)
+                    self.y_pos = self.process.read_ushort(self.path_addr+0x06)
+                    odist = math.dist([objectx,objecty],[self.x_pos,self.y_pos])
+                    #print(self.y_pos)
+                    #print(self.x_pos)
+                    print(txt_obj_name[file_no-1] + " " + str(str(file_no)))	
+                    print('dist - > ' + str(odist)) 
+                    if odist < 25:
+                        self.monsters.append (mon_unit) 
+                mon_unit = self.process.read_longlong(mon_unit + 0x150)   
+        return self.monsters
+        
+        """
         #addr_mon_Stats = self.starting_offset + self.base +0x10
         offset = 128*8*1
         pMonster = self.starting_offset + offset 
         mon_addr = self.base + pMonster
         
-        for i in range(256):
-            mond_addr = mon_addr + (i-1) * 8 + 0x1A
-            mon_unit = self.process.read_bytes(mon_addr, 1)
-            print ("test")
+        for i in range(128):
+            mond_addr = mon_addr + (i-1) * 8 + 0xC4
+            mon_unit = self.process.read_ushort(mon_addr)
+            print (mon_unit)
         
-        """
+
         startingAddress = self.base + self.player_unit
         playerUnit = self.process.read_ulonglong(startingAddress)
         pUnitData = playerUnit + 0x10 
@@ -441,7 +484,8 @@ if __name__ == "__main__":
         exit()
     d2.find_info()
     d2.get_ppos()
+    print (d2.x_pos)
+    print (d2.y_pos)
     #d2.get_map_json(str(d2.map_seed))
     #d2.find_objects()
-    #d2.chest_dist()
-    d2.get_monsters_around ()
+    #d2.chest_dist()  

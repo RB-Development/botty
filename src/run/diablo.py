@@ -382,7 +382,12 @@ class Diablo:
         result = self._d2.get_map_json (self._d2.map_seed, 108, ["255", "392", "393", "255","394","255", "395", "396", "255"])
         
         for res in result:
-            Pather_mem.calc_path_to_target (self, self._d2.x_pos, self._d2.y_pos, res[0]["x"], res [0]["y"])    
+            Pather_mem.calc_path_to_target (self, self._d2.x_pos, self._d2.y_pos, res[0]["x"], res [0]["y"])  
+            #mouse.click(button="left")
+            monsterlist = self._d2.get_monsters_around ()
+            if len (monsterlist)> 4:
+                self._char.kill_cs_trash ()
+                  
         #self._d2.find_info()
         
         #d2.get_map_json(str(d2.map_seed))
@@ -390,7 +395,6 @@ class Diablo:
         #self._d2.get_map_json(d2.map_seed)
         #target_x = d2.seals[0][0]['x']
         #target_y = d2.seals[0][0]['y']
-        print (f"target pos {str (target_x)} , {str (target_y)}")
         #d2.get_ppos()
         
     
