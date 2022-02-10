@@ -12,6 +12,7 @@ from ui import UiManager
 from utils.misc import wait
 from utils.custom_mouse import mouse
 from screen import Screen
+from world2screen.w2s import world2screen
 import read_mem
 import math
 
@@ -41,6 +42,7 @@ class Diablo:
         self.used_tps = 0
         self._d2 = d2
         self._Pather_mem = pather_mem
+        self.w2s = world2screen ()
 
     def approach(self, start_loc: Location) -> Union[bool, Location, bool]:
         Logger.info("Run Diablo /!\ BETA Version /!\ please do not run without supervision.")
@@ -384,6 +386,9 @@ class Diablo:
         for res in result:
             Pather_mem.calc_path_to_target (self, self._d2.x_pos, self._d2.y_pos, res[0]["x"], res [0]["y"])  
             #mouse.click(button="left")
+            
+            
+            
             monsterlist = self._d2.get_monsters_around ()
             if len (monsterlist)> 4:
                 self._char.kill_cs_trash ()
