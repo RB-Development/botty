@@ -7,13 +7,6 @@ import time
 
 class Firebase:
     firebaseConfig = {
-      "apiKey": "AIzaSyC_uqKgwFcT6HgqdSvfCOubK8M0xx5L4nM",
-      "authDomain": "botty-eaff2.firebaseapp.com",
-      "databaseURL": "https://botty-eaff2-default-rtdb.europe-west1.firebasedatabase.app",
-      "projectId": "botty-eaff2",
-      "storageBucket": "botty-eaff2.appspot.com",
-      "messagingSenderId": "868389370365",
-      "appId": "1:868389370365:web:6030a7f6d1bff804778194"
     }
     
     runtime = {
